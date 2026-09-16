@@ -24,7 +24,7 @@ const SYSTEMS = [
   },
   {
     id: "biztalk",
-    title: "BIZTALK -> AWS",
+    title: "BIZTALK TO AWS",
     stages: [
       { id: "gw", label: "API Gateway", body: "REST edge for 8+ services reverse-engineered from 32 C# orchestrations." },
       { id: "lambda", label: "12 Lambdas", body: "Node.js services with submit-poll-webhook semantics for async business flows." },
@@ -150,7 +150,7 @@ SYSTEMS.forEach((system) => {
     if (index) {
       const arrow = document.createElement("span");
       arrow.className = "arrow";
-      arrow.textContent = "->";
+      arrow.textContent = "/";
       row.appendChild(arrow);
     }
     const button = document.createElement("button");
