@@ -1,14 +1,14 @@
 const STACK = [
   { id: "react", layer: "INTERFACE", name: "React", note: "Ask/cite UIs and job-tracking dashboards on top of REST." },
-  { id: "apis", layer: "INTERFACE", name: "REST APIs", note: "Submit–poll–webhook contracts for async loan and KYC flows." },
+  { id: "apis", layer: "INTERFACE", name: "REST APIs", note: "Submit-poll-webhook contracts for async loan and KYC flows." },
   { id: "rag", layer: "AGENTS", name: "RAG + Qdrant", note: "Chunk, retrieve, cite. Refuse the answer when retrieval is empty." },
-  { id: "lora", layer: "AGENTS", name: "Llama · LoRA", note: "Open-weight adaptation instead of treating the model as a black box." },
-  { id: "node", layer: "SERVICES", name: "Node.js · Lambda", note: "Comms platform and migrated BizTalk services on API Gateway." },
-  { id: "java", layer: "SERVICES", name: "Java · Spring", note: "Kafka task mesh: submit, execute, track with PostgreSQL." },
-  { id: "spark", layer: "STREAMS", name: "Spark · Iceberg", note: "Five-minute micro-batches, watermarks, hourly partitions." },
-  { id: "kafka", layer: "STREAMS", name: "Kafka · Kinesis", note: "Async workers and Connect event streams." },
+  { id: "lora", layer: "AGENTS", name: "Llama  |  LoRA", note: "Open-weight adaptation instead of treating the model as a black box." },
+  { id: "node", layer: "SERVICES", name: "Node.js  |  Lambda", note: "Comms platform and migrated BizTalk services on API Gateway." },
+  { id: "java", layer: "SERVICES", name: "Java  |  Spring", note: "Kafka task mesh: submit, execute, track with PostgreSQL." },
+  { id: "spark", layer: "STREAMS", name: "Spark  |  Iceberg", note: "Five-minute micro-batches, watermarks, hourly partitions." },
+  { id: "kafka", layer: "STREAMS", name: "Kafka  |  Kinesis", note: "Async workers and Connect event streams." },
   { id: "aws", layer: "CLOUD", name: "AWS", note: "Lambda, SQS, DynamoDB, Step Functions, EMR Serverless, CI/CD." },
-  { id: "docker", layer: "CLOUD", name: "Docker · CI/CD", note: "CodePipeline / CodeBuild / ECR for 50+ Lambdas." },
+  { id: "docker", layer: "CLOUD", name: "Docker  |  CI/CD", note: "CodePipeline / CodeBuild / ECR for 50+ Lambdas." },
 ];
 
 const SYSTEMS = [
@@ -24,10 +24,10 @@ const SYSTEMS = [
   },
   {
     id: "biztalk",
-    title: "BIZTALK ? AWS",
+    title: "BIZTALK -> AWS",
     stages: [
       { id: "gw", label: "API Gateway", body: "REST edge for 8+ services reverse-engineered from 32 C# orchestrations." },
-      { id: "lambda", label: "12 Lambdas", body: "Node.js services with submit–poll–webhook semantics for async business flows." },
+      { id: "lambda", label: "12 Lambdas", body: "Node.js services with submit-poll-webhook semantics for async business flows." },
       { id: "ddb", label: "DynamoDB", body: "NoSQL item collections plus a read-through cache that killed Teradata fan-out." },
       { id: "sfn", label: "Step Functions", body: "Daily cache refresh. Holdings latency moved from 2.8s to 350ms. 99.9% availability." },
     ],
@@ -39,16 +39,16 @@ const SYSTEMS = [
       { id: "ui", label: "React UI", body: "Ask, cite, follow-up. The interface makes retrieval visible instead of hiding it." },
       { id: "api", label: "FastAPI", body: "Session + tools runtime. DeepSeek Harness plugins against a project knowledge base." },
       { id: "ret", label: "Qdrant RAG", body: "Indexed chunks. If retrieval is empty, the agent refuses rather than hallucinating." },
-      { id: "model", label: "Llama + LoRA", body: "Open-weight checkpoint adapted on Hugging Face — inspect loss, do not only call an API." },
+      { id: "model", label: "Llama + LoRA", body: "Open-weight checkpoint adapted on Hugging Face  -  inspect loss, do not only call an API." },
     ],
   },
 ];
 
 const TIMELINE = [
-  { when: "2019 — 2023", title: "VIT · B.Tech Computer Science", body: "CGPA 8.88/10. Systems and software foundation." },
-  { when: "Jun 2023 — Jul 2025", title: "Aditya Birla Capital · SDE I", body: "10M+ msgs/day comms platform. BizTalk to AWS. 27M daily KYC/loan APIs. Execution Excellence." },
-  { when: "Aug 2025 — May 2027", title: "Georgia State · MS CS + GRA", body: "Academic Affairs assessment. Mentoring Python/Java/DSA. Atlanta." },
-  { when: "May — Aug 2026", title: "AWS Connect · SDE Intern", body: "Seattle. Streaming pipeline for Connect telemetry feeding ML and AI-agent workflows." },
+  { when: "2019  -  2023", title: "VIT  |  B.Tech Computer Science", body: "CGPA 8.88/10. Systems and software foundation." },
+  { when: "Jun 2023  -  Jul 2025", title: "Aditya Birla Capital  |  SDE I", body: "10M+ msgs/day comms platform. BizTalk to AWS. 27M daily KYC/loan APIs. Execution Excellence." },
+  { when: "Aug 2025  -  May 2027", title: "Georgia State  |  MS CS + GRA", body: "Academic Affairs assessment. Mentoring Python/Java/DSA. Atlanta." },
+  { when: "May  -  Aug 2026", title: "AWS Connect  |  SDE Intern", body: "Seattle. Streaming pipeline for Connect telemetry feeding ML and AI-agent workflows." },
   { when: "Next", title: "Full-time SDE / full-stack AI", body: "Open to roles that ship cloud services, data systems, and agents in production." },
 ];
 
@@ -67,15 +67,15 @@ function line(html) {
 
 const boot = [
   '<span class="dim">boot</span> agent runtime v2.6',
-  '<span class="dim">load</span> stack topology · 10 nodes',
-  '<span class="dim">load</span> production pipelines · connect / biztalk / rag',
-  '<span class="out">whoami</span> Ranjit Dontineni · full-stack AI engineer',
+  '<span class="dim">load</span> stack topology  |  10 nodes',
+  '<span class="dim">load</span> production pipelines  |  connect / biztalk / rag',
+  '<span class="out">whoami</span> Ranjit Dontineni  |  full-stack AI engineer',
   '<span class="dim">ready</span> type <span class="in">help</span>',
 ];
 boot.forEach((item, i) => setTimeout(() => line(item), 280 * i));
 
-const HELP = `commands: help · whoami · stack · systems · timeline · contact · clear
-keys: 1 overview · 2 stack · 3 systems · 4 timeline`;
+const HELP = `commands: help  |  whoami  |  stack  |  systems  |  timeline  |  contact  |  clear
+keys: 1 overview  |  2 stack  |  3 systems  |  4 timeline`;
 
 cmd.addEventListener("keydown", (event) => {
   if (event.key !== "Enter") return;
@@ -83,14 +83,14 @@ cmd.addEventListener("keydown", (event) => {
   line(`<span class="in">&gt; ${cmd.value}</span>`);
   cmd.value = "";
   if (!value || value === "help") line(`<span class="out">${HELP}</span>`);
-  else if (value === "whoami") line('<span class="out">Ranjit Dontineni · AWS · agents · streaming systems · Atlanta</span>');
+  else if (value === "whoami") line('<span class="out">Ranjit Dontineni  |  AWS  |  agents  |  streaming systems  |  Atlanta</span>');
   else if (value === "stack") { show("stack"); line('<span class="out">opened stack topology</span>'); }
   else if (value === "systems") { show("systems"); line('<span class="out">opened pipelines</span>'); }
   else if (value === "timeline") { show("timeline"); line('<span class="out">opened path</span>'); }
   else if (value === "overview" || value === "home") { show("overview"); line('<span class="out">overview</span>'); }
-  else if (value === "contact") line('<span class="out">ranjitdontineni9@gmail.com · calendly.com/ranjitdontineni9/30min</span>');
+  else if (value === "contact") line('<span class="out">ranjitdontineni9@gmail.com  |  calendly.com/ranjitdontineni9/30min</span>');
   else if (value === "clear") logEl.replaceChildren();
-  else line('<span class="dim">unknown · try help</span>');
+  else line('<span class="dim">unknown  |  try help</span>');
 });
 
 function show(id) {
@@ -150,7 +150,7 @@ SYSTEMS.forEach((system) => {
     if (index) {
       const arrow = document.createElement("span");
       arrow.className = "arrow";
-      arrow.textContent = "?";
+      arrow.textContent = "->";
       row.appendChild(arrow);
     }
     const button = document.createElement("button");
