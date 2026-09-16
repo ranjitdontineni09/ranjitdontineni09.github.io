@@ -52,7 +52,13 @@ const TIMELINE = [
   { when: "Next", title: "Full-time SDE / full-stack AI", body: "Open to roles that ship cloud services, data systems, and agents in production." },
 ];
 
-const KPI_TO_SYSTEM = { comms: "biztalk", kyc: "biztalk", cache: "biztalk", connect: "connect" };
+const VIEWS = ["overview", "stack", "systems", "timeline"];
+const KPI_ROUTE = {
+  comms: { systemId: "biztalk", stageId: "lambda" },
+  kyc: { systemId: "biztalk", stageId: "lambda" },
+  cache: { systemId: "biztalk", stageId: "sfn" },
+  connect: { systemId: "connect", stageId: "iceberg" },
+};
 
 const logEl = document.getElementById("term-log");
 const cmd = document.getElementById("cmd");
@@ -84,16 +90,42 @@ cmd.addEventListener("keydown", (event) => {
   cmd.value = "";
   if (!value || value === "help") line(`<span class="out">${HELP}</span>`);
   else if (value === "whoami") line('<span class="out">Ranjit Dontineni  |  AWS  |  agents  |  streaming systems  |  Atlanta</span>');
-  else if (value === "stack") { show("stack"); line('<span class="out">opened stack topology</span>'); }
-  else if (value === "systems") { show("systems"); line('<span class="out">opened pipelines</span>'); }
-  else if (value === "timeline") { show("timeline"); line('<span class="out">opened path</span>'); }
-  else if (value === "overview" || value === "home") { show("overview"); line('<span class="out">overview</span>'); }
+  else if (value === "stack") { show("stack", true); line('<span class="out">opened stack topology</span>'); }
+  else if (value === "systems") { show("systems", true); line('<span class="out">opened pipelines</span>'); }
+  else if (value === "timeline") { show("timeline", true); line('<span class="out">opened path</span>'); }
+  else if (value === "overview" || value === "home") { show("overview", true); line('<span class="out">overview</span>'); }
   else if (value === "contact") line('<span class="out">ranjitdontineni9@gmail.com  |  calendly.com/ranjitdontineni9/30min</span>');
   else if (value === "clear") logEl.replaceChildren();
   else line('<span class="dim">unknown  |  try help</span>');
 });
 
-function show(id) {
+function parseRoute() {
+  const params = new URLSearchParams(location.search);
+  const parts = location.hash.replace(/^#\/?/, "").split("/").filter(Boolean);
+  const view = VIEWS.includes(parts[0]) ? parts[0] : (VIEWS.includes(params.get("view")) ? params.get("view") : "overview");
+  if (view === "stack") return { view, nodeId: parts[1] || params.get("node") || "" };
+  if (view === "systems") return { view, systemId: parts[1] || params.get("system") || "", stageId: parts[2] || params.get("stage") || "" };
+  return { view };
+}
+
+function toHash(route) {
+  if (route.view === "stack" && route.nodeId) return `#/${route.view}/${route.nodeId}`;
+  if (route.view === "systems" && route.systemId) {
+    return route.stageId ? `#/${route.view}/${route.systemId}/${route.stageId}` : `#/${route.view}/${route.systemId}`;
+  }
+  return `#/${route.view || "overview"}`;
+}
+
+function setRoute(route, replace = false) {
+  const hash = toHash(route);
+  if ((location.hash || "#/overview") === hash) return;
+  appliedHash = hash;
+  if (replace) history.replaceState(route, "", hash);
+  else history.pushState(route, "", hash);
+}
+
+function show(id, route = true) {
+  if (!VIEWS.includes(id)) id = "overview";
   document.querySelectorAll(".view").forEach((view) => {
     const on = view.id === `view-${id}`;
     view.hidden = !on;
@@ -102,42 +134,75 @@ function show(id) {
   document.querySelectorAll(".views button").forEach((button) => {
     button.classList.toggle("is-on", button.dataset.view === id);
   });
+  if (route) {
+    const current = parseRoute();
+    if (id === "stack") setRoute({ view: "stack", nodeId: current.nodeId });
+    else if (id === "systems") setRoute({ view: "systems", systemId: current.systemId, stageId: current.stageId });
+    else setRoute({ view: id });
+  }
+}
+
+let appliedHash = "";
+function applyRoute() {
+  const route = parseRoute();
+  const hash = toHash(route);
+  if (appliedHash === hash) return;
+  appliedHash = hash;
+  show(route.view, false);
+  if (route.view === "stack" && route.nodeId) selectStack(route.nodeId, false);
+  if (route.view === "systems") {
+    const system = SYSTEMS.find((item) => item.id === route.systemId);
+    if (system) {
+      const stage = system.stages.find((item) => item.id === route.stageId) || system.stages[0];
+      inspectStage(system, stage, false);
+    }
+  }
 }
 
 document.querySelectorAll(".views button").forEach((button) => {
-  button.addEventListener("click", () => show(button.dataset.view));
+  button.addEventListener("click", () => show(button.dataset.view, true));
 });
 
 document.addEventListener("keydown", (event) => {
   if (event.target === cmd) return;
   const map = { "1": "overview", "2": "stack", "3": "systems", "4": "timeline" };
-  if (map[event.key]) show(map[event.key]);
+  if (map[event.key]) show(map[event.key], true);
 });
+addEventListener("popstate", applyRoute);
+addEventListener("hashchange", applyRoute);
 
 const constellation = document.getElementById("constellation");
 const stackDetail = document.getElementById("stack-detail");
+function selectStack(id, route = true) {
+  const node = STACK.find((item) => item.id === id);
+  if (!node) return;
+  constellation.querySelectorAll(".node").forEach((el) => el.classList.toggle("is-on", el.dataset.id === id));
+  stackDetail.innerHTML = `<p class="kicker">${node.layer}</p><h2>${node.name}</h2><p>${node.note}</p>`;
+  line(`<span class="dim">inspect</span> ${node.name}`);
+  if (route) setRoute({ view: "stack", nodeId: id });
+}
 STACK.forEach((node) => {
   const button = document.createElement("button");
   button.className = "node";
   button.type = "button";
+  button.dataset.id = node.id;
   button.innerHTML = `<span>${node.layer}</span><b>${node.name}</b>`;
   button.addEventListener("click", () => {
-    constellation.querySelectorAll(".node").forEach((el) => el.classList.remove("is-on"));
-    button.classList.add("is-on");
-    stackDetail.innerHTML = `<p class="kicker">${node.layer}</p><h2>${node.name}</h2><p>${node.note}</p>`;
-    line(`<span class="dim">inspect</span> ${node.name}`);
+    show("stack", false);
+    selectStack(node.id, true);
   });
   constellation.appendChild(button);
 });
 
 const pipes = document.getElementById("pipes");
 const sysDetail = document.getElementById("sys-detail");
-function inspectStage(system, stage) {
+function inspectStage(system, stage, route = true) {
   pipes.querySelectorAll("button").forEach((el) => {
-    el.classList.toggle("is-on", el.textContent === stage.label && el.closest(".pipe")?.querySelector("h2")?.textContent === system.title);
+    el.classList.toggle("is-on", el.dataset.system === system.id && el.dataset.stage === stage.id);
   });
   sysDetail.innerHTML = `<p class="kicker">${system.title}</p><h2>${stage.label}</h2><p>${stage.body}</p>`;
   line(`<span class="dim">stage</span> ${system.title} / ${stage.label}`);
+  if (route) setRoute({ view: "systems", systemId: system.id, stageId: stage.id });
 }
 
 SYSTEMS.forEach((system) => {
@@ -155,8 +220,13 @@ SYSTEMS.forEach((system) => {
     }
     const button = document.createElement("button");
     button.type = "button";
+    button.dataset.system = system.id;
+    button.dataset.stage = stage.id;
     button.textContent = stage.label;
-    button.addEventListener("click", () => inspectStage(system, stage));
+    button.addEventListener("click", () => {
+      show("systems", false);
+      inspectStage(system, stage, true);
+    });
     row.appendChild(button);
   });
   wrap.appendChild(row);
@@ -165,9 +235,11 @@ SYSTEMS.forEach((system) => {
 
 document.querySelectorAll("#kpis button").forEach((button) => {
   button.addEventListener("click", () => {
-    const sys = SYSTEMS.find((item) => item.id === KPI_TO_SYSTEM[button.dataset.open]);
-    show("systems");
-    if (sys) inspectStage(sys, sys.stages[0]);
+    const dest = KPI_ROUTE[button.dataset.open];
+    const system = dest && SYSTEMS.find((item) => item.id === dest.systemId);
+    const stage = system && system.stages.find((item) => item.id === dest.stageId);
+    show("systems", false);
+    if (system && stage) inspectStage(system, stage, true);
   });
 });
 
@@ -177,6 +249,9 @@ TIMELINE.forEach((item) => {
   li.innerHTML = `<b>${item.when}</b><h2>${item.title}</h2><p>${item.body}</p>`;
   timeline.appendChild(li);
 });
+
+applyRoute();
+if (!location.hash) setRoute(parseRoute(), true);
 
 function tick() {
   const now = new Date();
